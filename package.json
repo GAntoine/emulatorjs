@@ -6,8 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --host",
-    "start": "yarn dev",
-    "build": "vite build"
+    "start": "yarn dev"
   },
   "devDependencies": {
     "vite": "^4.4.8"
