@@ -1,8 +1,71 @@
+/**
+ * Configuration object for the EmulatorJS instance.
+ * @typedef {Object} EmulatorJSConfig
+ * @property {string} gameUrl - The URL of the game.
+ * @property {string} dataPath - The path to the data folder.
+ * @property {string} system - The system of the game.
+ * @property {string} biosUrl - The URL of the BIOS file.
+ * @property {string} gameName - The name of the game.
+ * @property {string} color - The color of the emulator.
+ * @property {string} adUrl - The URL of the ad.
+ * @property {string} adMode - The mode of the ad.
+ * @property {number} adTimer - The timer of the ad.
+ * @property {number} adSize - The size of the ad.
+ * @property {boolean} alignStartButton - Whether to align the start button.
+ * @property {Object} VirtualGamepadSettings - The settings for the virtual gamepad.
+ * @property {Object} buttonOpts - The options for the buttons.
+ * @property {number} volume - The volume of the emulator.
+ * @property {Object} defaultControllers - The default controllers.
+ * @property {boolean} startOnLoad - Whether to start the game on load.
+ * @property {boolean} fullscreenOnLoad - Whether to go fullscreen on load.
+ * @property {Object} filePaths - The file paths.
+ * @property {string} loadState - The URL of the load state.
+ * @property {number} cacheLimit - The cache limit.
+ * @property {Object} cheats - The cheats.
+ * @property {Object} defaultOptions - The default options.
+ * @property {string} gamePatchUrl - The URL of the game patch.
+ * @property {string} gameParentUrl - The URL of the game parent.
+ * @property {string} netplayUrl - The URL of the netplay server.
+ * @property {string} gameId - The ID of the game.
+ * @property {string} backgroundImg - The URL of the background image.
+ * @property {number} backgroundBlur - The blur of the background.
+ * @property {string} backgroundColor - The color of the background.
+ * @property {string} controlScheme - The control scheme.
+ * @property {number} threads - The number of threads.
+ * @property {boolean} disableCue - Whether to disable the cue.
+ * @property {string} startBtnName - The name of the start button.
+ * @property {boolean} softLoad - Whether to soft load.
+ * @property {boolean} screenRecording - Whether to record the screen.
+ * @property {Object} externalFiles - The external files.
+ * @property {boolean} disableDatabases - Whether to disable the databases.
+ * @property {boolean} disableLocalStorage - Whether to disable the local storage.
+ * @property {string} language - The language of the emulator.
+ * @property {Object} langJson - The JSON of the language.
+ */
+
+/**
+ * Self-invoking function that loads scripts and styles, handles missing files, and initializes the EmulatorJS instance.
+ */
 (async function() {
+    /**
+     * Returns the folder path from a given path.
+     * @param {string} path - The full path.
+     * @returns {string} The folder path.
+     */
     const folderPath = (path) => path.substring(0, path.length - path.split('/').pop().length);
+    
+    /**
+     * The path to the script.
+     * @type {string}
+     */
     let scriptPath = (typeof window.EJS_pathtodata === "string") ? window.EJS_pathtodata : folderPath((new URL(document.currentScript.src)).pathname);
     if (!scriptPath.endsWith('/')) scriptPath+='/';
-    //console.log(scriptPath);
+    
+    /**
+     * Loads a JavaScript file.
+     * @param {string} file - The name of the file to load.
+     * @returns {Promise} A promise that resolves when the script is loaded.
+     */
     function loadScript(file) {
         return new Promise(function (resolve, reject) {
             let script = document.createElement('script');
@@ -20,6 +83,12 @@
             document.head.appendChild(script);
         })
     }
+
+    /**
+     * Loads a CSS file.
+     * @param {string} file - The name of the file to load.
+     * @returns {Promise} A promise that resolves when the style is loaded.
+     */
     function loadStyle(file) {
         return new Promise(function(resolve, reject) {
             let css = document.createElement('link');
@@ -39,6 +108,10 @@
         })
     }
 
+    /**
+     * Handles missing files and attempts to load non-minified versions if applicable.
+     * @param {string} file - The name of the missing file.
+     */
     async function filesmissing(file) {
         console.error("Failed to load " + file);
         let minifiedFailed = file.includes(".min.") && !file.includes("socket");
@@ -72,6 +145,12 @@
         await loadScript('emulator.min.js');
         await loadStyle('emulator.min.css');
     }
+
+    /**
+     * Configuration object for the EmulatorJS instance.
+     * @type {EmulatorJSConfig}
+     * 
+     */
     const config = {};
     config.gameUrl = window.EJS_gameUrl;
     config.dataPath = scriptPath;
@@ -112,6 +191,9 @@
     config.disableDatabases = window.EJS_disableDatabases;
     config.disableLocalStorage = window.EJS_disableLocalStorage;
     
+    /**
+     * Initializes the EmulatorJS instance and sets up event handlers.
+     */
     if (typeof window.EJS_language === "string" && window.EJS_language !== "en-US") {
         try {
             let path;
@@ -127,7 +209,16 @@
         }
     }
     
-    window.EJS_emulator = new EmulatorJS(EJS_player, config);
+    /**
+     * @type {EmulatorJS} The EmulatorJS instance.
+     */
+    window.EJS_emulator = new EmulatorJS(window.EJS_player, config);
+    
+    /**
+     * Handles ad blocking.
+     * @param {string} url - The URL of the ad.
+     * @param {boolean} del - Whether to delete the ad.
+     */
     window.EJS_adBlocked = (url, del) => window.EJS_emulator.adBlocked(url, del);
     if (typeof window.EJS_ready === "function") {
         window.EJS_emulator.on("ready", window.EJS_ready);
